@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>FanzStore Ultra - Ultimate</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root { --bg: #020617; --card: #1e293b; --accent: #22d3ee; --text: #f1f5f9; --grad: linear-gradient(135deg, #0ea5e9, #6366f1); }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; font-family: 'Plus Jakarta Sans', sans-serif; }
+        body { margin: 0; background: var(--bg); color: var(--text); padding-bottom: 120px; overflow-x: hidden; }
+
+        /* LOGIN */
+        #login-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg); z-index: 10000; display: flex; align-items: center; justify-content: center; padding: 20px; }
+        .login-box { background: var(--card); padding: 30px; border-radius: 20px; width: 100%; max-width: 350px; text-align: center; border: 1px solid var(--accent); box-shadow: 0 0 30px rgba(34, 211, 238, 0.2); }
+
+        header { background: rgba(15, 23, 42, 0.8); padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 1000; backdrop-filter: blur(15px); border-bottom: 1px solid rgba(255,255,255,0.05); }
+        #header-jam { font-weight: 800; color: var(--accent); font-size: 14px; }
+
+        .container { padding: 15px; max-width: 500px; margin: auto; }
+        .status-bar { display: flex; justify-content: center; gap: 10px; margin-bottom: 20px; font-size: 10px; font-weight: 700; background: rgba(255,255,255,0.05); padding: 8px; border-radius: 10px; }
+        .dot { height: 8px; width: 8px; border-radius: 50%; display: inline-block; margin-right: 4px; }
+        .online { background: #22c55e; box-shadow: 0 0 8px #22c55e; }
+        .offline { background: #ef4444; }
+
+        .slider-wrapper { position: relative; width: 100%; height: 160px; border-radius: 20px; overflow: hidden; margin-bottom: 20px; border: 1px solid rgba(255,255,255,0.1); }
+        .slider { display: flex; transition: transform 0.5s ease; height: 100%; }
+        .slide { min-width: 100%; height: 100%; }
+        .slide img { width: 100%; height: 100%; object-fit: cover; }
+
+        .section-title { font-size: 11px; font-weight: 800; margin: 20px 0 10px; color: var(--accent); text-transform: uppercase; border-left: 3px solid var(--accent); padding-left: 8px; }
+        .input-box { background: var(--card); padding: 15px; border-radius: 15px; }
+        input { width: 100%; padding: 12px; border-radius: 10px; border: 1px solid #334155; background: #0f172a; color: white; margin-bottom: 8px; outline: none; }
+        
+        .btn-cek { background: var(--grad); color: white; border: none; padding: 0 15px; border-radius: 10px; font-weight: 800; cursor: pointer; }
+
+        .pay-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+        .pay-card { background: var(--card); padding: 12px 5px; border-radius: 12px; text-align: center; cursor: pointer; border: 2px solid transparent; }
+        .pay-card.selected { border-color: var(--accent); background: rgba(34,211,238,0.1); }
+        .pay-card i { font-size: 18px; margin-bottom: 5px; color: var(--accent); }
+        .pay-card div { font-size: 10px; font-weight: 800; }
+        .fee-tag { font-size: 8px; opacity: 0.6; }
+
+        .nav-grid { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 10px; scrollbar-width: none; }
+        .nav-box { background: var(--card); padding: 10px 20px; border-radius: 12px; font-size: 11px; font-weight: 700; white-space: nowrap; cursor: pointer; }
+        .nav-box.active { background: var(--grad); color: white; }
+        
+        #area-layanan { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+        .layanan-item { background: var(--card); padding: 10px 5px; border-radius: 10px; text-align: center; font-size: 10px; font-weight: 800; cursor: pointer; text-transform: uppercase; }
+        .layanan-item.active { background: var(--grad); }
+
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .card { background: var(--card); padding: 12px; border-radius: 15px; text-align: center; cursor: pointer; border: 2px solid transparent; }
+        .card.selected { border-color: var(--accent); background: rgba(34,211,238,0.1); }
+        .card .price { color: var(--accent); font-size: 11px; font-weight: 800; margin-top: 5px; }
+
+        /* CHATBOT */
+        #chat-btn { position: fixed; bottom: 85px; right: 20px; width: 55px; height: 55px; background: var(--grad); border-radius: 50%; display: flex; align-items: center; justify-content: center; z-index: 3000; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
+        #chat-box { display: none; position: fixed; bottom: 155px; right: 20px; width: 310px; height: 400px; background: var(--card); border-radius: 20px; z-index: 4000; flex-direction: column; overflow: hidden; border: 1px solid var(--accent); }
+        .chat-h { background: var(--grad); padding: 15px; font-weight: 800; display: flex; justify-content: space-between; }
+        .chat-b { flex: 1; padding: 15px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; background: #0f172a; font-size: 12px; }
+
+        .footer-bar { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(15, 23, 42, 0.95); padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(255,255,255,0.1); z-index: 2000; }
+        /* RUNNING TEXT */
+.running-text{
+  width:100%;
+  overflow:hidden;
+  background:rgba(34,211,238,0.1);
+  border:1px solid rgba(34,211,238,0.3);
+  border-radius:10px;
+  margin-bottom:15px;
+}
+
+.running-content{
+  display:inline-block;
+  white-space:nowrap;
+  padding:8px 0;
+  font-size:11px;
+  font-weight:700;
+  color:var(--accent);
+  animation:scrollText 15s linear infinite;
+}
+
+@keyframes scrollText{
+  0%{transform:translateX(100%);}
+  100%{transform:translateX(-100%);}
+}
+
+/* MODAL */
+#order-modal{
+  display:none;
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,0.7);
+  z-index:9999;
+  align-items:center;
+  justify-content:center;
+}
+
+.modal-box{
+  background:var(--card);
+  padding:20px;
+  width:90%;
+  max-width:350px;
+  border-radius:20px;
+  border:1px solid var(--accent);
+}
+
+.modal-btns{
+  display:flex;
+  gap:10px;
+  margin-top:15px;
+}
+
+.modal-btns button{
+  flex:1;
+  padding:10px;
+  border-radius:10px;
+  border:none;
+  font-weight:800;
+  cursor:pointer;
+}
+    </style>
+
+</head>
+<div id="order-modal">
+  <div class="modal-box">
+    <h3 style="margin-top:0;color:var(--accent)">Konfirmasi Pesanan</h3>
+    <div id="modal-detail" style="font-size:12px;line-height:1.6;"></div>
+    <div class="modal-btns">
+      <button onclick="closeModal()" style="background:#334155;color:white;">BATAL</button>
+<button id="btn-confirm" onclick="confirmOrder()" 
+style="background:var(--grad);color:white;">
+KONFIRMASI
+</button>
+    </div>
+  </div>
+</div>
+<body>
+
+<div id="login-overlay">
+    <div class="login-box">
+        <h2 style="margin:0; color:var(--accent)">FANZ<span style="color:white">STORE</span></h2>
+        <p style="font-size:11px; opacity:0.6; margin-bottom:20px">Silakan masuk untuk akses website</p>
+        <input type="text" id="in-nama" placeholder="Masukkan nama...">
+        <button onclick="prosesLogin()" style="width:100%; padding:12px; border-radius:10px; border:none; background:var(--grad); color:white; font-weight:800;">MASUK SEKARANG</button>
+    </div>
+</div>
+
+<header>
+    <div style="font-weight:800; font-size:1.2rem;">FANZZ<span style="color:var(--accent)">STORE</span></div>
+    <div style="text-align:right">
+        <div style="font-size: 9px; opacity: 0.6;" id="header-tgl"></div>
+        <div id="header-jam">00:00:00</div>
+    </div>
+</header>
+
+<div class="container">
+    <div id="welcome" style="font-weight:700; margin-bottom:15px; font-size:15px">Welcome, <span id="user-display" style="color:var(--accent)">User</span>! 👋</div>
+    
+<div class="running-text">
+  <div class="running-content">
+    🔥 Promo FANZ77 Diskon 15% • Open 24 Jam • Proses Cepat & Aman • Terima Kasih Sudah Order di FanzStore 🔥
+  </div>
+  
+</div>
+    <div class="status-bar">
+        <span><span class="dot online"></span>GAME</span>
+        <span><span class="dot online"></span>E-WALLET</span>
+        <span><span class="dot online"></span>PULSA</span>
+    </div>
+
+    <div class="slider-wrapper">
+        <div class="slider" id="slider">
+            <div class="slide"><img src="https://images.unsplash.com/photo-1542751371-adc38448a05e?w=800"></div>
+            <div class="slide"><img src="https://images.unsplash.com/photo-1511512578047-dfb367046420?w=800"></div>
+        </div>
+    </div>
+
+    <div class="section-title">1. Data Tujuan & Promo</div>
+    <div class="input-box">
+        <input type="text" id="target" placeholder="Masukkan ID / No HP...">
+        <div style="display:flex; gap:8px">
+            <input type="text" id="promo" placeholder="Kode Promo" style="margin:0">
+            <button class="btn-cek" onclick="cekPromo()">CEK</button>
+        </div>
+        <div id="promo-msg" style="font-size:10px; margin-top:5px; font-weight:700"></div>
+    </div>
+
+    <div class="section-title">2. Metode Pembayaran</div>
+    <div class="pay-grid">
+        <div class="pay-card" onclick="setPay('DANA', 500, this)"><i class="fas fa-wallet"></i><div>DANA</div><span class="fee-tag">+500</span></div>
+        <div class="pay-card" onclick="setPay('QRIS', 1000, this)"><i class="fas fa-qrcode"></i><div>QRIS</div><span class="fee-tag">+1rb</span></div>
+        <div class="pay-card" onclick="setPay('CASH', 1500, this)"><i class="fas fa-money-bill-wave"></i><div>CASH</div><span class="fee-tag">+1.5rb</span></div>
+    </div>
+
+    <div class="section-title">3. Pilih Kategori</div>
+    <div class="nav-grid">
+        <div class="nav-box active" onclick="pilihK('game', this)">GAMES</div>
+        <div class="nav-box" onclick="pilihK('pulsa', this)">PULSA / DATA</div>
+        <div class="nav-box" onclick="pilihK('wallet', this)">E-WALLET</div>
+    </div>
+
+    <div class="section-title">4. Pilih Layanan</div>
+    <div id="area-layanan"></div>
+
+    <div class="section-title">5. Pilih Nominal</div>
+    <div id="area-nominal" class="grid"></div>
+
+    <div class="section-title" style="text-align:center; border:none; margin-top:40px">Hubungi Kami</div>
+    <div style="display:flex; justify-content:center; gap:30px; margin-bottom:30px">
+        <a href="https://wa.me/6287795237332" style="color:#25d366; font-size:24px;"><i class="fab fa-whatsapp"></i></a>
+        <i class="fab fa-twitter" style="font-size:24px; color:#e1306c"></i>
+        <i class="fab fa-telegram" style="font-size:24px; color:#0088cc"></i>
+    </div>
+</div>
+
+<div id="chat-btn" onclick="toggleChat()"><i class="fas fa-comment-dots" style="color:white; font-size:24px;"></i></div>
+<div id="chat-box">
+    <div class="chat-h"><span>Fanzz AI Assistant</span><i class="fas fa-times" onclick="toggleChat()" style="cursor:pointer"></i></div>
+    <div class="chat-b" id="chat-content"></div>
+    <div style="padding:10px; display:flex; gap:5px; background:#1e293b">
+        <input type="text" id="chat-in" placeholder="Ketik bantuan..." style="margin:0; font-size:12px; flex:1">
+        <button onclick="sendChat()" style="background:var(--accent); border:none; border-radius:10px; padding:0 15px; color:white;"><i class="fas fa-paper-plane"></i></button>
+    </div>
+</div>
+
+<div class="footer-bar">
+    <div>
+        <span style="font-size:9px; opacity:0.6;">TOTAL BAYAR</span>
+        <div id="total-txt" style="font-size:18px; font-weight:800; color:var(--accent);">Rp 0</div>
+    </div>
+    <button onclick="orderNow()" style="background:var(--grad); color:white; border:none; padding:12px 25px; border-radius:12px; font-weight:800; cursor:pointer">ORDER</button>
+</div>
+
+<script>
+const DB = {
+    game: {
+        ml:[["5 Diamond",1000],["12 Diamond",3500],["28 Diamond",8000],["36 Diamond",10000],["56 Diamond",15000],["85 Diamond",22500],["100 Diamond",26000],["144 Diamond",38000],["170 Diamond",45500],["240 Diamond",63000],["355 Diamond",93000],["425 Diamond",112000],["514 Diamond",132000],["712 Diamond",183000],["875 Diamond",217000],["1050 Diamond",265500],["1220 Diamond",309000],["1453 Diamond",371000],["1750 Diamond",441000],["2180 Diamond",524000],["2578 Diamond",625000],["4020 Diamond",961000],["7660 Diamond",1839000],["WDP",29500],["Twilight Pass",146500],["Starlight Mem Plus",195500]],
+        ff:[["5 Diamond",500],["12 Diamond",1500],["20 Diamond",3000],["30 Diamond",4000],["50 Diamond",7000],["70 Diamond",9000],["100 Diamond",13000],["140 Diamond",19000],["150 Diamond",21000],["210 Diamond",27000],["355 Diamond",48000],["425 Diamond",56000],["500 Diamond",68000],["720 Diamond",95000],["860 Diamond",112000],["1000 Diamond",135000],["1075 Diamond",145000],["1440 Diamond",190000],["1450 Diamond",192000],["2000 Diamond",260000],["2180 Diamond",285000],["3640 Diamond",470000],["7290 Diamond",930000],["Membership Mingguan",28500],["Membership Bulanan",81500],["BP Card",41500]],
+        pubg:[["60 UC",15000],["325 UC",75000],["660 UC",155000]],
+        codm:[["80 CP",15000],["420 CP",75000],["880 CP",145000]],
+        genshin:[["60 GC",15000],["300 GC",75000],["980 GC",230000]],
+        hsr:[["60 Jade",15000],["300 Jade",75000]],
+        roblox:[["80 Robux",15000],["400 Robux",75000]],
+        higgs:[["1B Chip",15000],["2B Chip",30000]],
+        steam:[["IDR 12K",15000],["IDR 45K",50000]]
+    },
+    pulsa: {
+        telkomsel:[["5K",6500],["10K",11500],["15K",16500],["20K",21000],["25K",26000],["30K",31500],["40K",41500],["50K",51000],["60K",61500],["70K",71500],["80K",81500],["100K",102000],["150K",152000],["200K",202000]],
+        xl:[["5K",6500],["10K",11500],["15K",16500],["25K",26500],["30K",31500],["40K",41500],["50K",51500],["70K",71500],["80K",81500],["100K",101000],["150K",151500],["200K",202000]],
+        axis:[["5K",6500],["10K",11500],["15K",16500],["25K",26500],["30K",31500],["40K",41500],["50K",51500],["100K",101000],["150K",151500],["200K",202000]],
+        indosat:[["5K",7000],["10K",12000],["15K",16000],["20K",21000],["25K",25500],["30K",31000],["40K",41000],["50K",51000],["70K",71000],["80K",81000],["90K",91000],["100K",101000]],
+        tri:[["5K",6500],["10K",11500],["15K",16000],["20K",21000],["25K",26000],["30K",31500],["40K",41500],["50K",51000],["70K",71500],["90K",91500],["100K",102000],["125K",127000],["150K",152000],["200K",202000]]
+    },
+    wallet: {
+        dana:[["1K",1500],["2K",2500],["3K",3500],["4K",4500],["5K",5500],["10K",10500],["15K",15500],["20K",20500],["25K",26500],["30K",31500],["40K",41500],["50K",51500],["60K",61500],["70K",71500],["80K",81500],["90K",91500],["100K",102500],["125",127500],["150K",152500],["200K",202000]],
+        ovo:[["10K",11500],["15K",16500],["20K",21500],["25K",26500],["30K",31500],["40K",41500],["50K",51500],["60K",61500],["70K",71500],["80K",81500],["90K",91500],["100K",102500],["125",127500],["150K",152500],["200K",202000]],
+        gopay:[["10K",11500],["15K",16500],["20K",21500],["25K",26500],["30K",31500],["40K",41500],["50K",51500],["60K",61500],["70K",71500],["80K",81500],["90K",91500],["100K",102500],["125",127500],["150K",152500],["200K",202000]],
+        shopeepay:[["10K",11500],["15K",16500],["20K",21500],["25K",26500],["30K",31500],["40K",41500],["50K",51500],["60K",61500],["70K",71500],["80K",81500],["90K",91500],["100K",102500],["125",127500],["150K",152500],["200K",202000]]
+    }
+};
+
+let price = 0, fee = 0, game = "", item = "", pay = "", disc = 1, sIdx = 0, uName = "Bos";
+
+function prosesLogin() {
+    let n = document.getElementById('in-nama').value;
+    if(n.length < 2) return alert("Isi namamu dulu wok!");
+    uName = n;
+    document.getElementById('user-display').innerText = n;
+    document.getElementById('login-overlay').style.display = 'none';
+    document.getElementById('chat-content').innerHTML = `<div style="background:#1e293b; padding:10px; border-radius:10px; align-self:flex-start">Welcome to MarketFanz User ${uName}! Perkenalkan saya Asisten AI yg dibuat oleh admin FANZZ untuk membantu & melayani user, Ada yang bisa saya bantu? Ketik <b>PROMO</b>, <b>WAKTU</b>, atau <b>CARA</b>.</div>`;
+}
+
+function updateClock() {
+    const now = new Date();
+    document.getElementById('header-jam').innerText = now.toLocaleTimeString('id-ID');
+    document.getElementById('header-tgl').innerText = now.toLocaleDateString('id-ID', {weekday:'long', day:'numeric', month:'short'});
+}
+setInterval(updateClock, 1000);
+
+function moveSlider() {
+    sIdx = (sIdx + 1) % 2;
+    document.getElementById('slider').style.transform = `translateX(-${sIdx * 100}%)`;
+}
+setInterval(moveSlider, 5000);
+
+function cekPromo() {
+    let c = document.getElementById('promo').value.toUpperCase(), m = document.getElementById('promo-msg');
+    if(c === "FANZ77") { disc = 0.85; m.innerText = "aktif (15%)"; m.style.color = "#22c55e"; }
+    else if(c === "FANZ32") { disc = 0.90; m.innerText = "Aktif (10%)"; m.style.color = "#22c55e"; }
+    else if(c === "FANZ98") { disc = 0.95; m.innerText = "Aktif (5%)"; m.style.color = "#22c55e"; }
+    else { disc = 1; m.innerText = "Kode Salah/Sudah dipakai"; m.style.color = "#ef4444"; }
+    renderPrice();
+}
+
+function setPay(p, f, el) {
+    document.querySelectorAll('.pay-card').forEach(c => c.classList.remove('selected'));
+    el.classList.add('selected'); pay = p; fee = f; renderPrice();
+}
+
+function pilihK(k, el) {
+    document.querySelectorAll('.nav-box').forEach(b => b.classList.remove('active'));
+    el.classList.add('active');
+    let h = "";
+    Object.keys(DB[k]).forEach((g, i) => {
+        h += `<div class="layanan-item ${i==0?'active':''}" onclick="loadNom('${k}','${g}',this)">${g}</div>`;
+    });
+    document.getElementById('area-layanan').innerHTML = h;
+    loadNom(k, Object.keys(DB[k])[0], document.querySelector('.layanan-item'));
+}
+
+function loadNom(k, g, el) {
+    document.querySelectorAll('.layanan-item').forEach(b => b.classList.remove('active'));
+    if(el) el.classList.add('active');
+    game = g;
+    let h = "";
+    DB[k][g].forEach(i => {
+        h += `<div class="card" onclick="setItem('${i[0]}',${i[1]},this)"><b>${i[0]}</b><div class="price">Rp ${i[1].toLocaleString()}</div></div>`;
+    });
+    document.getElementById('area-nominal').innerHTML = h;
+}
+
+function setItem(n, p, el) {
+    document.querySelectorAll('.card').forEach(c => c.classList.remove('selected'));
+    el.classList.add('selected');
+    item = n; price = p; renderPrice();
+}
+
+function renderPrice() {
+    let total = Math.floor(price * disc) + fee;
+    document.getElementById('total-txt').innerText = "Rp " + total.toLocaleString();
+}
+
+function toggleChat() {
+    let b = document.getElementById('chat-box');
+    b.style.display = (b.style.display === 'flex') ? 'none' : 'flex';
+}
+
+function sendChat() {
+    let i = document.getElementById('chat-in'), c = document.getElementById('chat-content'), v = i.value.toUpperCase();
+    if(!v) return;
+    c.innerHTML += `<div style="background:var(--grad); padding:10px; border-radius:10px; align-self:flex-end">${i.value}</div>`;
+    let r = `Siap Bos ${uName}, Ada lagi?`;
+    if(v.includes("PROMO")) r = "Gunakan: FANZ77(15%), FANZ32(10%), FANZ98(5%). Setiap kode hanya bisa digunakan 1x!!";
+    else if(v.includes("WAKTU")) r = "Sistem open 24jam (kecuali saat gangguan)";
+    else if(v.includes("CARA")) r = "Pilih Game -> Masukkan ID -> Pilih Pembayaran -> Klik Order!";
+    
+    setTimeout(() => {
+        c.innerHTML += `<div style="background:#1e293b; padding:10px; border-radius:10px; align-self:flex-start">${r}</div>`;
+        c.scrollTop = c.scrollHeight;
+    }, 600);
+    i.value = "";
+}
+
+function orderNow() {
+    let id = document.getElementById('target').value.trim();
+
+    // VALIDASI
+    if (!id) return alert("ID belum diisi!");
+    if (isNaN(id)) return alert("ID harus berupa angka!");
+    if (id.length < 8) return alert("ID minimal 8 digit!");
+
+    if (!price) return alert("Silakan pilih nominal!");
+    if (!pay) return alert("Silakan pilih metode bayar!");
+
+    let detail = `
+        <b>User:</b> ${uName}<br>
+        <b>Layanan:</b> ${game.toUpperCase()}<br>
+        <b>Item:</b> ${item}<br>
+        <b>ID:</b> ${id}<br>
+        <b>Bayar:</b> ${pay}<br>
+        <b>Total:</b> ${document.getElementById('total-txt').innerText}
+    `;
+
+    document.getElementById('modal-detail').innerHTML = detail;
+    document.getElementById('order-modal').style.display = 'flex';
+}
+function closeModal(){
+    document.getElementById('order-modal').style.display='none';
+}
+
+function confirmOrder(){
+    let btn = document.getElementById("btn-confirm");
+    let id = document.getElementById('target').value;
+
+    // Ubah tombol jadi loading
+    btn.innerText = "Memproses...";
+    btn.disabled = true;
+
+    setTimeout(() => {
+
+        let msg = `ORDER FANZSTORE%0AUser: ${uName}%0ALayanan: ${game.toUpperCase()}%0AItem: ${item}%0AID: ${id}%0ABayar: ${pay}%0ATotal: ${document.getElementById('total-txt').innerText}`;
+        
+        window.open(`https://wa.me/6287795237332?text=${msg}`);
+        
+        btn.innerText = "Konfirmasi";
+        btn.disabled = false;
+        closeModal();
+
+    }, 1500); // Delay 1.5 detik
+}
+window.onload = () => { updateClock(); pilihK('game', document.querySelector('.nav-box')); };
+</script>
+</body>
+</html>
